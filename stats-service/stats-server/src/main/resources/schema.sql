@@ -6,5 +6,5 @@ CREATE TABLE IF NOT EXISTS hits
     app          VARCHAR(255) NOT NULL,
     uri          VARCHAR(255) NOT NULL,
     ip           VARCHAR(255) NOT NULL,
-    request_time TIMESTAMP WITHOUT TIME ZONE
+    request_time TIMESTAMP WITHOUT TIME ZONE NOT NULL
 )

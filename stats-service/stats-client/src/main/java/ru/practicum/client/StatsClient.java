@@ -35,7 +35,8 @@ public class StatsClient {
         restTemplate.exchange(serverUrl + "/hit", HttpMethod.POST, requestEntity, EndpointHitDto.class);
     }
 
-    public List<ViewStatsDto> getStats(LocalDateTime start, LocalDateTime end, List<String> uris, Boolean unique) {
+    public List<ViewStatsDto> getStats(LocalDateTime start, LocalDateTime end, List<String> uris, Boolean unique)
+            throws JsonProcessingException {
 
         Map<String, Object> parameters = new HashMap<>();
 
@@ -50,11 +51,8 @@ public class StatsClient {
 
         ObjectMapper objectMapper = new ObjectMapper();
         ViewStatsDto[] array;
-        try {
-            array = objectMapper.readValue(response.getBody(), ViewStatsDto[].class);
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
+
+        array = objectMapper.readValue(response.getBody(), ViewStatsDto[].class);
 
         return Arrays.asList(array);
     }
