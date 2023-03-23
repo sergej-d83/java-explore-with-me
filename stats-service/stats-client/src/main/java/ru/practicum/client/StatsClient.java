@@ -20,8 +20,8 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class StatsClient {
 
-    @Value("${stats-server.url}")
-    private final String serverUrl;
+    @Value("${server.url}")
+    private String serverUrl;
 
     private final RestTemplate restTemplate;
 
