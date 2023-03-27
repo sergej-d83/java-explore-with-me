@@ -9,19 +9,23 @@ import ru.practicum.user.dto.UserDto;
 import ru.practicum.user.service.UserService;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
 import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/admin/users")
-public class UserController {
+public class AdminUserController {
 
     private final UserService userService;
 
     @GetMapping
     public ResponseEntity<List<UserDto>> getUsers(@RequestParam(required = false) Long[] ids,
-                                                  @RequestParam(required = false, defaultValue = "0") Integer from,
-                                                  @RequestParam(required = false, defaultValue = "10") Integer size) {
+                                                  @RequestParam(required = false, defaultValue = "0")
+                                                  @PositiveOrZero Integer from,
+                                                  @RequestParam(required = false, defaultValue = "10")
+                                                  @Positive Integer size) {
 
         return new ResponseEntity<>(userService.getUsers(ids, from, size), HttpStatus.OK);
     }
