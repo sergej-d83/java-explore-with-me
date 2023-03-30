@@ -3,6 +3,7 @@ package ru.practicum.client;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
@@ -20,7 +21,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class StatsClient {
 
-    @Value("${server.url}")
+    @Setter
     private String serverUrl;
 
     private final RestTemplate restTemplate;

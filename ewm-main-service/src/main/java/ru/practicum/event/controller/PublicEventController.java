@@ -1,4 +1,4 @@
-package ru.practicum.event;
+package ru.practicum.event.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -7,10 +7,14 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import ru.practicum.event.dto.EventFullDto;
+import ru.practicum.event.dto.EventShortDto;
+import ru.practicum.event.service.EventService;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -21,7 +25,7 @@ public class PublicEventController {
     @GetMapping("/events")
     public ResponseEntity<List<EventShortDto>> getEvents(@RequestParam(required = false) String text,
                                                          @RequestParam(required = false) Integer[] categories,
-                                                         @RequestParam(required = false) Boolean paid,
+                                                         @RequestParam(required = false) Boolean isPaid,
                                                          @RequestParam(required = false) String rangeStart,
                                                          @RequestParam(required = false) String rangeEnd,
                                                          @RequestParam(required = false, defaultValue = "false") Boolean onlyAvailable,
@@ -32,13 +36,13 @@ public class PublicEventController {
                                                          @RequestParam(required = false, defaultValue = "10") Integer size,
                                                          HttpServletRequest request) {
 
-        return new ResponseEntity<>(eventService.getPublicEvents(text, categories, paid, rangeStart, rangeEnd,
+        return new ResponseEntity<>(eventService.getEvents(text, categories, isPaid, rangeStart, rangeEnd,
                 onlyAvailable, sort, from, size, request), HttpStatus.OK);
     }
 
     @GetMapping("/events/{eventId}")
     public ResponseEntity<EventFullDto> getPublicEventById(@PathVariable Long eventId, HttpServletRequest request) {
 
-        return new ResponseEntity<>(eventService.getPublicEventById(eventId, request), HttpStatus.OK);
+        return new ResponseEntity<>(eventService.getEventById(eventId, request), HttpStatus.OK);
     }
 }

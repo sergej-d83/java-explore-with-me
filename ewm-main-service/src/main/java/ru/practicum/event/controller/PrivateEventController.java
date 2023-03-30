@@ -1,13 +1,17 @@
-package ru.practicum.event;
+package ru.practicum.event.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.event.dto.*;
+import ru.practicum.event.service.EventService;
+import ru.practicum.request.dto.ParticipationRequestDto;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -22,7 +26,7 @@ public class PrivateEventController {
             @PositiveOrZero @RequestParam(required = false, defaultValue = "0") Integer from,
             @Positive @RequestParam(required = false, defaultValue = "10") Integer size) {
 
-        return new ResponseEntity<>(eventService.getEventsByUser(userId, from, size), HttpStatus.OK);
+        return new ResponseEntity<>(eventService.getEventsByUserId(userId, from, size), HttpStatus.OK);
     }
 
     @PostMapping
@@ -31,15 +35,15 @@ public class PrivateEventController {
     }
 
     @GetMapping("/{eventId}")
-    public ResponseEntity<EventFullDto> getEvent(@PathVariable Long userId, @PathVariable Long eventId) {
-        return new ResponseEntity<>(eventService.getEvent(userId, eventId), HttpStatus.OK);
+    public ResponseEntity<EventFullDto> getEventAsUser(@PathVariable Long userId, @PathVariable Long eventId) {
+        return new ResponseEntity<>(eventService.getEventAsUser(userId, eventId), HttpStatus.OK);
     }
 
     @PatchMapping("/{eventId}")
-    public ResponseEntity<EventFullDto> updateEvent(@RequestBody UpdateEventUserRequest updatedEvent,
+    public ResponseEntity<EventFullDto> updateEventAsUser(@RequestBody UpdateEventUserRequest updatedEvent,
                                                     @PathVariable Long userId, @PathVariable Long eventId) {
 
-        return new ResponseEntity<>(eventService.updateEvent(updatedEvent, userId, eventId), HttpStatus.OK);
+        return new ResponseEntity<>(eventService.updateEventAsUser(userId, eventId, updatedEvent), HttpStatus.OK);
     }
 
     @GetMapping("/{eventId}/requests")
@@ -52,8 +56,8 @@ public class PrivateEventController {
     @PatchMapping("/{eventId}/requests")
     public ResponseEntity<EventRequestStatusUpdateResult> updateRequestStatus(
             @PathVariable Long userId, @PathVariable Long eventId,
-            @RequestBody EventRequestStatusUpdateRequest updatedStatus) {
+            @RequestBody EventRequestStatusUpdateRequest statusUpdateRequest) {
 
-        return new ResponseEntity<>(eventService.updateRequestStatus(userId, eventId, updatedStatus), HttpStatus.OK);
+        return new ResponseEntity<>(eventService.updateRequestStatus(userId, eventId, statusUpdateRequest), HttpStatus.OK);
     }
 }

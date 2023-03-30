@@ -45,7 +45,7 @@ public class CategoryServiceImpl implements CategoryService {
         categoryRepository.findById(catId).orElseThrow(() -> new NotFoundException("Категория не найдена."));
 
         //Zu ende schreiben
-        return null;
+        //return null;
     }
 
     @Override
