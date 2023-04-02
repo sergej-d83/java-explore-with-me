@@ -11,12 +11,10 @@ import java.time.LocalDateTime;
 @Data
 public class UpdateEventAdminRequest {
 
-    @Size(min = 20, max = 2000, message = "Annotation minLength = 20, maxLength = 2000")
     private String annotation;
 
     private Long categoryId;
 
-    @Size(min = 20, max = 7000, message = "Description minLength = 20, maxLength = 7000")
     private String description;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", shape = JsonFormat.Shape.STRING)

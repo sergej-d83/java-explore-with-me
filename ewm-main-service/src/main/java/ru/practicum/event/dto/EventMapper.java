@@ -11,16 +11,14 @@ import java.time.LocalDateTime;
 
 public class EventMapper {
 
-    public static Event toEvent(NewEventDto eventDto, User initiator, Category category) {
+    public static Event toEvent(NewEventDto eventDto) {
 
         Event event = new Event();
 
         event.setAnnotation(eventDto.getAnnotation());
-        event.setCategory(category);
         event.setCreatedOn(LocalDateTime.now());
         event.setDescription(eventDto.getDescription());
         event.setEventDate(eventDto.getEventDate());
-        event.setInitiator(initiator);
         event.setLocation(eventDto.getLocation());
         event.setIsPaid(eventDto.getIsPaid());
         event.setParticipantLimit(eventDto.getParticipantLimit());
@@ -45,5 +43,27 @@ public class EventMapper {
         eventShortDto.setTitle(event.getTitle());
 
         return eventShortDto;
+    }
+
+    public static EventFullDto toEventFullDto(Event event) {
+
+        EventFullDto fullDto = new EventFullDto();
+
+        fullDto.setId(event.getId());
+        fullDto.setAnnotation(event.getAnnotation());
+        fullDto.setCategoryDto(CategoryMapper.toCategoryDto(event.getCategory()));
+        fullDto.setConfirmedRequests((long) event.getConfirmedRequests().size());
+        fullDto.setCreatedOn(event.getCreatedOn());
+        fullDto.setDescription(event.getDescription());
+        fullDto.setEventDate(event.getEventDate());
+        fullDto.setInitiator(UserMapper.toUserShortDto(event.getInitiator()));
+        fullDto.setLocation(event.getLocation());
+        fullDto.setParticipantLimit(event.getParticipantLimit());
+        fullDto.setPublishedOn(event.getPublishedOn());
+        fullDto.setRequestModeration(event.getRequestModeration());
+        fullDto.setState(event.getState());
+        fullDto.setTitle(event.getTitle());
+
+        return fullDto;
     }
 }
