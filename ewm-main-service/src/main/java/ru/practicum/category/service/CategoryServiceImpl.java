@@ -9,6 +9,9 @@ import ru.practicum.category.CategoryMapper;
 import ru.practicum.category.dto.CategoryDto;
 import ru.practicum.category.dto.NewCategoryDto;
 import ru.practicum.category.repository.CategoryRepository;
+import ru.practicum.event.Event;
+import ru.practicum.event.repository.EventRepository;
+import ru.practicum.exception.ConflictException;
 import ru.practicum.exception.NotFoundException;
 
 import java.util.List;
@@ -19,6 +22,7 @@ import java.util.stream.Collectors;
 public class CategoryServiceImpl implements CategoryService {
 
     private final CategoryRepository categoryRepository;
+    private final EventRepository eventRepository;
 
     @Override
     public CategoryDto addCategory(NewCategoryDto newCategoryDto) {
@@ -44,8 +48,13 @@ public class CategoryServiceImpl implements CategoryService {
 
         categoryRepository.findById(catId).orElseThrow(() -> new NotFoundException("Категория не найдена."));
 
-        //Zu ende schreiben
-        //return null;
+        List<Event> events = eventRepository.findByCategoryId(catId);
+
+        if (events.isEmpty()) {
+            categoryRepository.deleteById(catId);
+        } else {
+            throw new ConflictException("Категория не может быть удалена. Одно или несколько событий связаны с ней.");
+        }
     }
 
     @Override
