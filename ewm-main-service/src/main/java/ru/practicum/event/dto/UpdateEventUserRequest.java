@@ -14,7 +14,7 @@ public class UpdateEventUserRequest {
     @Size(min = 20, max = 2000, message = "Annotation minLength = 20, maxLength = 2000")
     private String annotation;
 
-    private Long categoryId;
+    private Long category;
 
     @Size(min = 20, max = 7000, message = "Description minLength = 20, maxLength = 7000")
     private String description;
@@ -24,7 +24,7 @@ public class UpdateEventUserRequest {
 
     private Location location;
 
-    private Boolean isPaid;
+    private Boolean paid;
 
     private Long participantLimit;
 

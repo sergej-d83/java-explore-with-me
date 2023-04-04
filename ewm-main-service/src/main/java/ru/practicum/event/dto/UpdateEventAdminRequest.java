@@ -13,7 +13,7 @@ public class UpdateEventAdminRequest {
 
     private String annotation;
 
-    private Long categoryId;
+    private Long category;
 
     private String description;
 
@@ -22,7 +22,7 @@ public class UpdateEventAdminRequest {
 
     private Location location;
 
-    private Boolean isPaid;
+    private Boolean paid;
 
     private Long participantLimit;
 

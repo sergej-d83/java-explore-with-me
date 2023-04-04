@@ -15,6 +15,7 @@ import ru.practicum.exception.ConflictException;
 import ru.practicum.exception.NotFoundException;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -27,20 +28,28 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public CategoryDto addCategory(NewCategoryDto newCategoryDto) {
 
-        Category category = CategoryMapper.toCategory(newCategoryDto);
+        Optional<Category> category = categoryRepository.findByName(newCategoryDto.getName());
+        if (category.isPresent()) {
+            throw new ConflictException("Эта категория уже существует. " + newCategoryDto.getName());
+        }
 
-        return CategoryMapper.toCategoryDto(categoryRepository.save(category));
+        return CategoryMapper.toCategoryDto(categoryRepository.save(CategoryMapper.toCategory(newCategoryDto)));
     }
 
     @Override
     public CategoryDto patchCategory(Long catId, NewCategoryDto newCategoryDto) {
 
-        Category category = categoryRepository.findById(catId)
+        Category categoryToUpdate = categoryRepository.findById(catId)
                 .orElseThrow(() -> new NotFoundException("Категория не найдена."));
 
-        category.setName(newCategoryDto.getName());
+        Optional<Category> category = categoryRepository.findByName(newCategoryDto.getName());
+        if (category.isPresent()) {
+            throw new ConflictException("Эта категория уже существует. " + newCategoryDto.getName());
+        }
 
-        return CategoryMapper.toCategoryDto(categoryRepository.save(category));
+        categoryToUpdate.setName(newCategoryDto.getName());
+
+        return CategoryMapper.toCategoryDto(categoryRepository.save(categoryToUpdate));
     }
 
     @Override

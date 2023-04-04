@@ -16,7 +16,7 @@ public class EventFullDto {
 
     private String annotation;
 
-    private CategoryDto categoryDto;
+    private CategoryDto category;
 
     private Long confirmedRequests;
 
@@ -32,7 +32,7 @@ public class EventFullDto {
 
     private Location location;
 
-    private Boolean isPaid;
+    private Boolean paid;
 
     private Long participantLimit;
 

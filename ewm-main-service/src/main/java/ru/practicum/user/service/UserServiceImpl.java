@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import ru.practicum.exception.ConflictException;
 import ru.practicum.exception.NotFoundException;
 import ru.practicum.user.User;
 import ru.practicum.user.UserMapper;
@@ -12,6 +13,7 @@ import ru.practicum.user.dto.UserDto;
 import ru.practicum.user.repository.UserRepository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -34,9 +36,12 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDto addUser(NewUserRequest newUser) {
 
-        User user = UserMapper.toUser(newUser);
+        Optional<User> user = userRepository.findByEmail(newUser.getEmail());
+        if (user.isPresent()) {
+            throw new ConflictException("Пользователь с такой электронной почтой уже существует. " + newUser.getEmail());
+        }
 
-        return UserMapper.toUserDto(userRepository.save(user));
+        return UserMapper.toUserDto(userRepository.save(UserMapper.toUser(newUser)));
     }
 
     @Override

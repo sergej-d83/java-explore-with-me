@@ -1,6 +1,7 @@
 package ru.practicum.event;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import ru.practicum.category.Category;
@@ -17,8 +18,7 @@ import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "events")
-@Getter
-@Setter
+@Data
 public class Event {
 
     @Id
@@ -49,7 +49,7 @@ public class Event {
     private Location location;
 
     @Column(name = "is_paid", nullable = false)
-    private Boolean isPaid;
+    private Boolean paid;
 
     @Column(name = "participant_limit")
     private Long participantLimit;
@@ -71,7 +71,7 @@ public class Event {
     private String title;
 
     public List<ParticipationRequest> getConfirmedRequests() {
-        if (this.requests.isEmpty()) {
+        if (this.requests == null) {
             return Collections.emptyList();
         }
 

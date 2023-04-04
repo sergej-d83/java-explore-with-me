@@ -16,7 +16,7 @@ public class Compilation {
     private Long id;
 
     @Column(name = "is_pinned", nullable = false)
-    private Boolean isPinned;
+    private Boolean pinned;
 
     @Column(nullable = false)
     private String title;

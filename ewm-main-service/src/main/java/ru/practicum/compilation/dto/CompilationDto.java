@@ -10,7 +10,7 @@ public class CompilationDto {
 
     private Long id;
 
-    private Boolean isPinned;
+    private Boolean pinned;
 
     private String title;
 

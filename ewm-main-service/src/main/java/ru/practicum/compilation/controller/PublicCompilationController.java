@@ -19,13 +19,13 @@ public class PublicCompilationController {
     private final CompilationService compilationService;
 
     @GetMapping
-    public ResponseEntity<List<CompilationDto>> getCompilations(@RequestParam(required = false) Boolean isPinned,
+    public ResponseEntity<List<CompilationDto>> getCompilations(@RequestParam(required = false) Boolean pinned,
                                                                 @PositiveOrZero
                                                                 @RequestParam(required = false, defaultValue = "0") Integer from,
                                                                 @Positive
                                                                 @RequestParam(required = false, defaultValue = "10") Integer size) {
 
-        return new ResponseEntity<>(compilationService.getCompilations(isPinned, from, size), HttpStatus.OK);
+        return new ResponseEntity<>(compilationService.getCompilations(pinned, from, size), HttpStatus.OK);
     }
 
     @GetMapping("/{compId}")

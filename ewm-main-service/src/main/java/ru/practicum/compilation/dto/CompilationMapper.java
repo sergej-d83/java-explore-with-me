@@ -16,7 +16,7 @@ public class CompilationMapper {
                 .stream()
                 .map(EventMapper::toEventShortDto)
                 .collect(Collectors.toList()));
-        compilationDto.setIsPinned(compilation.getIsPinned());
+        compilationDto.setPinned(compilation.getPinned());
         compilationDto.setTitle(compilation.getTitle());
 
         return compilationDto;

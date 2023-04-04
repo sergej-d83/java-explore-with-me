@@ -14,9 +14,9 @@ public class ParticipationRequestDto {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", shape = JsonFormat.Shape.STRING)
     private LocalDateTime created;
 
-    private Long eventId;
+    private Long event;
 
-    private Long requesterId;
+    private Long requester;
 
     private ParticipationRequestStatus status;
 }

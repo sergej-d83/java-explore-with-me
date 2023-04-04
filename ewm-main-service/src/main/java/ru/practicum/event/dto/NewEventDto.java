@@ -15,7 +15,7 @@ public class NewEventDto {
     private String annotation;
 
     @NotNull
-    private Long categoryId;
+    private Long category;
 
     @NotBlank
     @Size(min = 20, max = 7000, message = "Description minLength = 20, maxLength = 7000")
@@ -29,7 +29,7 @@ public class NewEventDto {
     private Location location;
 
     @NotNull
-    private Boolean isPaid;
+    private Boolean paid;
 
     @NotNull
     @PositiveOrZero

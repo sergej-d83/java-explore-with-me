@@ -23,4 +23,12 @@ public interface StatsRepository extends JpaRepository<EndpointHit, Long> {
             "group by h.uri, h.app " +
             "order by hits desc", nativeQuery = true)
     List<ViewStatsDto> getStatsByUris(LocalDateTime start, LocalDateTime end, List<String> uris);
+
+    @Query(value = "select h.app as app, h.uri as uri, " +
+            "(case when :unique = true then count(distinct h.ip) else count(h.ip) end) as hits " +
+            "from hits as h " +
+            "where h.request_time between (:start) and (:end) " +
+            "group by h.uri, h.app " +
+            "order by hits desc", nativeQuery = true)
+    List<ViewStatsDto> getStatsByTime(LocalDateTime start, LocalDateTime end, Boolean unique);
 }

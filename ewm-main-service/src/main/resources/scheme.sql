@@ -1,4 +1,9 @@
-DROP TABLE IF EXISTS users,categories, events, requests, compilations, event_compilations;
+DROP TABLE IF EXISTS users CASCADE ;
+DROP TABLE IF EXISTS categories CASCADE ;
+DROP TABLE IF EXISTS events CASCADE ;
+DROP TABLE IF EXISTS requests CASCADE ;
+DROP TABLE IF EXISTS compilations CASCADE ;
+DROP TABLE IF EXISTS event_compilations CASCADE ;
 
 CREATE TABLE IF NOT EXISTS users
 (
@@ -16,10 +21,10 @@ CREATE TABLE IF NOT EXISTS categories
 CREATE TABLE IF NOT EXISTS events
 (
     id                 BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    annotation         VARCHAR(512)                NOT NULL,
+    annotation         VARCHAR(1024)               NOT NULL,
     category_id        BIGINT                      NOT NULL REFERENCES categories (id),
     created_on         TIMESTAMP WITHOUT TIME ZONE NOT NULL,
-    description        VARCHAR(512)                NOT NULL,
+    description        VARCHAR(1024)               NOT NULL,
     event_date         TIMESTAMP WITHOUT TIME ZONE NOT NULL,
     initiator_id       BIGINT                      NOT NULL REFERENCES users (id),
     location_lon       FLOAT                       NOT NULL,

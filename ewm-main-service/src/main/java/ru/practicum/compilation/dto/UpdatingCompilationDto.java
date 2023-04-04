@@ -9,9 +9,9 @@ import java.util.List;
 @Setter
 public class UpdatingCompilationDto {
 
-    private List<Long> eventIds;
+    private List<Long> events;
 
-    private Boolean isPinned;
+    private Boolean pinned;
 
     private String title;
 }

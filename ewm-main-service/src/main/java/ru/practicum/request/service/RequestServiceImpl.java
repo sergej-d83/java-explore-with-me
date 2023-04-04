@@ -34,7 +34,7 @@ public class RequestServiceImpl implements RequestService {
         userRepository.findById(userId).orElseThrow(
                 () -> new NotFoundException("Пользователь под номером " + userId + " не найден"));
 
-        List<ParticipationRequest> requests = requestRepository.findAllByRequesterId(userId);
+        List<ParticipationRequest> requests = requestRepository.findAllByRequester(userId);
 
         return requests.stream().map(RequestMapper::toRequestDto).collect(Collectors.toList());
     }
@@ -42,9 +42,9 @@ public class RequestServiceImpl implements RequestService {
     @Override
     public ParticipationRequestDto addRequest(Long userId, Long eventId) {
 
-        Optional<ParticipationRequest> optionalRequest = requestRepository.findByEventIdAndRequesterId(eventId, userId);
+        Optional<ParticipationRequest> optionalRequest = requestRepository.findByEventIdAndRequester(eventId, userId);
         if (optionalRequest.isPresent()) {
-            throw new ConflictException("Запрос номер на участие в событии номер уже существует.");
+            throw new ConflictException("Запрос на участие в событии уже существует.");
         }
 
         Event event = eventRepository.findById(eventId).orElseThrow(
@@ -66,7 +66,7 @@ public class RequestServiceImpl implements RequestService {
 
         request.setCreated(LocalDateTime.now());
         request.setEvent(event);
-        request.setRequesterId(userId);
+        request.setRequester(userId);
         if (event.getRequestModeration()) {
             request.setStatus(ParticipationRequestStatus.PENDING);
         } else {
@@ -85,7 +85,7 @@ public class RequestServiceImpl implements RequestService {
         userRepository.findById(userId).orElseThrow(
                 () -> new NotFoundException("Пользователь под номером " + userId + " не найден"));
 
-        if (request.getRequesterId().equals(userId)) {
+        if (request.getRequester().equals(userId)) {
             request.setStatus(ParticipationRequestStatus.CANCELED);
         } else {
             throw new ConflictException("Можно отклонить только свой запрос.");

@@ -19,7 +19,7 @@ public class AdminEventController {
     private final EventService eventService;
 
     @GetMapping("/admin/events")
-    public ResponseEntity<List<EventFullDto>> getEventsAsAdmin(@RequestParam(required = false) Integer[] userIds,
+    public ResponseEntity<List<EventFullDto>> getEventsAsAdmin(@RequestParam(required = false) Integer[] users,
                                                                @RequestParam(required = false) String[] states,
                                                                @RequestParam(required = false) Integer[] categories,
                                                                @RequestParam(required = false) String rangeStart,
@@ -29,7 +29,7 @@ public class AdminEventController {
                                                                @Positive
                                                                @RequestParam(required = false, defaultValue = "10") Integer size) {
 
-        return new ResponseEntity<>(eventService.getEventsAsAdmin(userIds, states, categories,
+        return new ResponseEntity<>(eventService.getEventsAsAdmin(users, states, categories,
                 rangeStart, rangeEnd, from, size), HttpStatus.OK);
     }
 

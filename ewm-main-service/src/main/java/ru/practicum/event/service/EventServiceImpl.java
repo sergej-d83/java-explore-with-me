@@ -19,6 +19,7 @@ import ru.practicum.event.status.AdminStateAction;
 import ru.practicum.event.status.EventStatus;
 import ru.practicum.event.status.UserStateAction;
 import ru.practicum.exception.ConflictException;
+import ru.practicum.exception.InvalidRequestException;
 import ru.practicum.exception.NotFoundException;
 import ru.practicum.request.ParticipationRequest;
 import ru.practicum.request.dto.ParticipationRequestDto;
@@ -56,9 +57,11 @@ public class EventServiceImpl implements EventService {
                                          String rangeEnd, Boolean onlyAvailable, String sort, Integer from,
                                          Integer size, HttpServletRequest request) {
 
-        Sort sorting = EventSort.valueOf(sort).equals(EventSort.VIEWS) ?
-                Sort.by(Sort.Direction.DESC, "views") :
-                Sort.by(Sort.Direction.ASC, "eventDate");
+        Sort sorting = Sort.by(Sort.Direction.ASC, "eventDate");
+
+        if (sort != null && !sort.isBlank() && EventSort.VIEWS.equals(EventSort.valueOf(sort))) {
+            sorting = Sort.by(Sort.Direction.DESC, "views");
+        }
 
         Pageable pageable = PageRequest.of(from / size, size, sorting);
 
@@ -109,8 +112,8 @@ public class EventServiceImpl implements EventService {
         User user = userRepository.findById(userId).orElseThrow(
                 () -> new NotFoundException("Пользователь под номером " + userId + " не найден"));
 
-        Category category = categoryRepository.findById(newEventDto.getCategoryId()).orElseThrow(
-                () -> new NotFoundException("Категория под номером " + newEventDto.getCategoryId() + " не найдена"));
+        Category category = categoryRepository.findById(newEventDto.getCategory()).orElseThrow(
+                () -> new InvalidRequestException("Категория под номером " + newEventDto.getCategory() + " не найдена"));
 
         Event event = EventMapper.toEvent(newEventDto);
         event.setInitiator(user);
@@ -140,7 +143,7 @@ public class EventServiceImpl implements EventService {
         Event event = eventRepository.findById(eventId).orElseThrow(
                 () -> new NotFoundException("Событие под номером " + eventId + " не найдено."));
 
-        if (event.getEventDate() != null && event.getEventDate().isBefore(LocalDateTime.now().plusHours(1))) {
+        if (updateRequest.getEventDate() != null && updateRequest.getEventDate().isBefore(LocalDateTime.now().plusHours(1))) {
             throw new ConflictException("Начало события меньше чем через час.");
         }
 
@@ -159,8 +162,8 @@ public class EventServiceImpl implements EventService {
         if (updateRequest.getAnnotation() != null) {
             event.setAnnotation(updateRequest.getAnnotation());
         }
-        if (updateRequest.getCategoryId() != null) {
-            event.setCategory(categoryRepository.findById(updateRequest.getCategoryId())
+        if (updateRequest.getCategory() != null) {
+            event.setCategory(categoryRepository.findById(updateRequest.getCategory())
                     .orElseThrow(() -> new NotFoundException("Категория не найдена.")));
         }
         if (updateRequest.getDescription() != null) {
@@ -172,8 +175,8 @@ public class EventServiceImpl implements EventService {
         if (updateRequest.getLocation() != null) {
             event.setLocation(updateRequest.getLocation());
         }
-        if (updateRequest.getIsPaid() != null) {
-            event.setIsPaid(updateRequest.getIsPaid());
+        if (updateRequest.getPaid() != null) {
+            event.setPaid(updateRequest.getPaid());
         }
         if (updateRequest.getParticipantLimit() != null) {
             event.setParticipantLimit(updateRequest.getParticipantLimit());
@@ -226,12 +229,17 @@ public class EventServiceImpl implements EventService {
         if (event.getEventDate().isBefore(LocalDateTime.now().plusHours(2))) {
             throw new ConflictException("Событие начнётся раньше чем через 2 часа.");
         }
+        if (updateRequest.getEventDate() != null) {
+            if (updateRequest.getEventDate().isBefore(LocalDateTime.now())) {
+                throw new ConflictException("Начало события не может быть в прошлом. " + updateRequest.getEventDate());
+            }
+        }
 
         if (updateRequest.getAnnotation() != null) {
             event.setAnnotation(updateRequest.getAnnotation());
         }
-        if (updateRequest.getCategoryId() != null) {
-            event.setCategory(categoryRepository.findById(updateRequest.getCategoryId())
+        if (updateRequest.getCategory() != null) {
+            event.setCategory(categoryRepository.findById(updateRequest.getCategory())
                     .orElseThrow(() -> new NotFoundException("Категория не найдена.")));
         }
         if (updateRequest.getDescription() != null) {
@@ -243,8 +251,8 @@ public class EventServiceImpl implements EventService {
         if (updateRequest.getLocation() != null) {
             event.setLocation(updateRequest.getLocation());
         }
-        if (updateRequest.getIsPaid() != null) {
-            event.setIsPaid(updateRequest.getIsPaid());
+        if (updateRequest.getPaid() != null) {
+            event.setPaid(updateRequest.getPaid());
         }
         if (updateRequest.getParticipantLimit() != null) {
             event.setParticipantLimit(updateRequest.getParticipantLimit());
@@ -324,25 +332,25 @@ public class EventServiceImpl implements EventService {
         BooleanExpression query = qEvent.state.eq(EventStatus.PUBLISHED);
 
         if (text != null) {
-            query.and(qEvent.annotation.containsIgnoreCase(text).or(qEvent.description.containsIgnoreCase(text)));
+            query = query.and(qEvent.annotation.containsIgnoreCase(text).or(qEvent.description.containsIgnoreCase(text)));
         }
         if (categories != null) {
-            query.and(qEvent.category.id.in(categories));
+            query = query.and(qEvent.category.id.in(categories));
         }
         if (isPaid != null) {
-            query.and(qEvent.isPaid.eq(isPaid));
+            query = query.and(qEvent.isPaid.eq(isPaid));
         }
         if (rangeStart != null) {
-            query.and(qEvent.eventDate.after(LocalDateTime.parse(rangeStart, DATE_TIME_FORMATTER)));
+            query = query.and(qEvent.eventDate.after(LocalDateTime.parse(rangeStart, DATE_TIME_FORMATTER)));
         }
         if (rangeEnd != null) {
-            query.and(qEvent.eventDate.before(LocalDateTime.parse(rangeEnd, DATE_TIME_FORMATTER)));
+            query = query.and(qEvent.eventDate.before(LocalDateTime.parse(rangeEnd, DATE_TIME_FORMATTER)));
         }
         if (rangeStart == null) {
-            query.and(qEvent.eventDate.after(LocalDateTime.now()));
+            query = query.and(qEvent.eventDate.after(LocalDateTime.now()));
         }
         if (onlyAvailable) {
-            query.and(qEvent.requests.size().lt(qEvent.participantLimit));
+            query = query.and(qEvent.requests.size().lt(qEvent.participantLimit));
         }
 
         return query;
@@ -355,21 +363,21 @@ public class EventServiceImpl implements EventService {
         BooleanExpression query = qEvent.id.isNotNull();
 
         if (userIds != null && userIds.length > 0) {
-            query.and(qEvent.initiator.id.in(userIds));
+            query = query.and(qEvent.initiator.id.in(userIds));
         }
         if (states != null && states.length > 0) {
 
             List<EventStatus> list = Arrays.stream(states).map(EventStatus::valueOf).collect(Collectors.toList());
-            query.and(qEvent.state.in(list));
+            query = query.and(qEvent.state.in(list));
         }
         if (categories != null && categories.length > 0) {
-            query.and(qEvent.category.id.in(categories));
+            query = query.and(qEvent.category.id.in(categories));
         }
         if (rangeStart != null) {
-            query.and(qEvent.eventDate.after(LocalDateTime.parse(rangeStart, DATE_TIME_FORMATTER)));
+            query = query.and(qEvent.eventDate.after(LocalDateTime.parse(rangeStart, DATE_TIME_FORMATTER)));
         }
         if (rangeEnd != null) {
-            query.and(qEvent.eventDate.before(LocalDateTime.parse(rangeEnd, DATE_TIME_FORMATTER)));
+            query = query.and(qEvent.eventDate.before(LocalDateTime.parse(rangeEnd, DATE_TIME_FORMATTER)));
         }
 
         return query;
@@ -390,10 +398,9 @@ public class EventServiceImpl implements EventService {
 
     private List<ParticipationRequest> updateStatusOfRequests(Event event, EventRequestStatusUpdateRequest updateRequest) {
 
-        int confirmed = event.getConfirmedRequests().size();
-        long participantLimit = event.getParticipantLimit();
+        int countConfirmed = 0;
 
-        if (confirmed >= participantLimit) {
+        if (event.getConfirmedRequests().size() >= event.getParticipantLimit()) {
             throw new ConflictException("Лимит участников достигнут.");
         }
 
@@ -407,20 +414,22 @@ public class EventServiceImpl implements EventService {
             }
 
             if (updateRequest.getStatus().equals(ParticipationRequestStatus.CONFIRMED)) {
-                if ((participantLimit == 0 || !event.getRequestModeration()) && (confirmed < participantLimit)) {
+                if ((event.getParticipantLimit() == 0 || !event.getRequestModeration()) &&
+                        (event.getConfirmedRequests().size() + countConfirmed < event.getParticipantLimit())) {
 
                     request.setStatus(ParticipationRequestStatus.CONFIRMED);
-                    confirmed++;
+                    countConfirmed++;
 
-                } else if ((!event.getRequestModeration() && participantLimit > 0) && (confirmed > participantLimit)) {
-
-                    request.setStatus(ParticipationRequestStatus.CONFIRMED);
-                    confirmed++;
-
-                } else if (confirmed < participantLimit) {
+                } else if ((!event.getRequestModeration() && event.getParticipantLimit() > 0) &&
+                        (event.getConfirmedRequests().size() + countConfirmed < event.getParticipantLimit())) {
 
                     request.setStatus(ParticipationRequestStatus.CONFIRMED);
-                    confirmed++;
+                    countConfirmed++;
+
+                } else if (event.getConfirmedRequests().size() + countConfirmed < event.getParticipantLimit()) {
+
+                    request.setStatus(ParticipationRequestStatus.CONFIRMED);
+                    countConfirmed++;
 
                 } else {
                     request.setStatus(ParticipationRequestStatus.REJECTED);

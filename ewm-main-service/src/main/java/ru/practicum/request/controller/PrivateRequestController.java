@@ -11,7 +11,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/user/{userId}/requests")
+@RequestMapping("/users/{userId}/requests")
 public class PrivateRequestController {
 
     private final RequestService requestService;

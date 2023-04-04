@@ -10,7 +10,6 @@ import ru.practicum.compilation.dto.UpdatingCompilationDto;
 import ru.practicum.compilation.service.CompilationService;
 
 import javax.validation.Valid;
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor

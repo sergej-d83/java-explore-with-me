@@ -25,14 +25,15 @@ public class StatsServiceImpl implements StatsService {
     @Override
     public List<ViewStatsDto> getStats(LocalDateTime start, LocalDateTime end, List<String> uris, Boolean unique) {
 
-        if (!uris.isEmpty()) {
+
+        if (uris != null) {
             if (unique) {
                 return statsRepository.getStatsByUrisAndIp(start, end, uris);
             } else {
                 return statsRepository.getStatsByUris(start, end, uris);
             }
         } else {
-            return Collections.emptyList();
+            return statsRepository.getStatsByTime(start, end, unique);
         }
     }
 }
