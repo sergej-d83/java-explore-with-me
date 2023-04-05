@@ -34,8 +34,7 @@ CREATE TABLE IF NOT EXISTS events
     published_on       TIMESTAMP WITHOUT TIME ZONE,
     request_moderation BOOLEAN,
     state              VARCHAR(50),
-    title              VARCHAR(512)                NOT NULL,
-    views              BIGINT
+    title              VARCHAR(512)                NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS requests

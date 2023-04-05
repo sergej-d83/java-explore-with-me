@@ -1,11 +1,19 @@
 package ru.practicum.server.dto;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-public interface ViewStatsDto {
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+public class ViewStatsDto {
 
-    String getApp();
+    private String app;
 
-    String getUri();
+    private String uri;
 
-    Long getHits();
+    private Long hits;
 }

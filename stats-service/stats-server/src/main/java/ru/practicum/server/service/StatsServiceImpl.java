@@ -8,7 +8,6 @@ import ru.practicum.server.mapper.EndpointHitMapper;
 import ru.practicum.server.repository.StatsRepository;
 
 import java.time.LocalDateTime;
-import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -33,7 +32,7 @@ public class StatsServiceImpl implements StatsService {
                 return statsRepository.getStatsByUris(start, end, uris);
             }
         } else {
-            return statsRepository.getStatsByTime(start, end, unique);
+            return statsRepository.getStatsByTime(start, end);
         }
     }
 }

@@ -2,8 +2,6 @@ package ru.practicum.event;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
 import ru.practicum.category.Category;
 import ru.practicum.event.status.EventStatus;
 import ru.practicum.request.ParticipationRequest;
@@ -69,6 +67,9 @@ public class Event {
 
     @Column(nullable = false)
     private String title;
+
+    @Transient
+    private Long views = 0L;
 
     public List<ParticipationRequest> getConfirmedRequests() {
         if (this.requests == null) {

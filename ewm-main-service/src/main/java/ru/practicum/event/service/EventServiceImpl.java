@@ -2,6 +2,7 @@ package ru.practicum.event.service;
 
 import com.querydsl.core.types.dsl.BooleanExpression;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -27,12 +28,14 @@ import ru.practicum.request.dto.RequestMapper;
 import ru.practicum.request.repository.RequestRepository;
 import ru.practicum.request.status.ParticipationRequestStatus;
 import ru.practicum.server.dto.EndpointHitDto;
+import ru.practicum.server.dto.ViewStatsDto;
 import ru.practicum.user.User;
 import ru.practicum.user.repository.UserRepository;
 
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -67,14 +70,12 @@ public class EventServiceImpl implements EventService {
 
         BooleanExpression query = prepareQueryForUserRequest(text, categories, isPaid, rangeStart, rangeEnd, onlyAvailable);
 
-        List<EventShortDto> events = eventRepository.findAll(query, pageable)
-                .getContent()
-                .stream().map(EventMapper::toEventShortDto)
-                .collect(Collectors.toList());
+        List<Event> events = eventRepository.findAll(query, pageable).getContent();
 
         sendStatistics(request);
+        getViews(events);
 
-        return events;
+        return events.stream().map(EventMapper::toEventShortDto).collect(Collectors.toList());
     }
 
     @Override
@@ -87,6 +88,7 @@ public class EventServiceImpl implements EventService {
             throw new NotFoundException("Событие под номером " + eventId + " не найдено.");
         }
         sendStatistics(request);
+        getViews(List.of(event));
 
         return EventMapper.toEventFullDto(event);
     }
@@ -98,6 +100,8 @@ public class EventServiceImpl implements EventService {
                 () -> new NotFoundException("Пользователь под номером " + userId + " не найден"));
 
         List<Event> events = eventRepository.findByInitiatorId(userId, PageRequest.of(from / size, size));
+
+        getViews(events);
 
         return events.stream().map(EventMapper::toEventShortDto).collect(Collectors.toList());
     }
@@ -131,10 +135,11 @@ public class EventServiceImpl implements EventService {
 
         BooleanExpression query = prepareQueryForAdminRequest(userIds, states, categories, rangeStart, rangeEnd);
 
-        return eventRepository.findAll(query, pageable)
-                .stream()
-                .map(EventMapper::toEventFullDto)
-                .collect(Collectors.toList());
+        List<Event> events = eventRepository.findAll(query, pageable).getContent();
+
+        getViews(events);
+
+        return events.stream().map(EventMapper::toEventFullDto).collect(Collectors.toList());
     }
 
     @Override
@@ -187,6 +192,7 @@ public class EventServiceImpl implements EventService {
         if (updateRequest.getStateAction() != null) {
             if (updateRequest.getStateAction() == AdminStateAction.PUBLISH_EVENT) {
                 event.setState(EventStatus.PUBLISHED);
+                event.setPublishedOn(LocalDateTime.now());
             }
             if (updateRequest.getStateAction() == AdminStateAction.REJECT_EVENT) {
                 event.setState(EventStatus.CANCELED);
@@ -207,6 +213,8 @@ public class EventServiceImpl implements EventService {
 
         Event event = eventRepository.findById(eventId).orElseThrow(
                 () -> new NotFoundException("Событие под номером " + eventId + " не найдено."));
+
+        getViews(List.of(event));
 
         return EventMapper.toEventFullDto(event);
     }
@@ -325,7 +333,7 @@ public class EventServiceImpl implements EventService {
         return result;
     }
 
-    private BooleanExpression prepareQueryForUserRequest(String text, Integer[] categories, Boolean isPaid,
+    private BooleanExpression prepareQueryForUserRequest(String text, Integer[] categories, Boolean paid,
                                                          String rangeStart, String rangeEnd, Boolean onlyAvailable) {
 
         QEvent qEvent = QEvent.event;
@@ -337,8 +345,8 @@ public class EventServiceImpl implements EventService {
         if (categories != null) {
             query = query.and(qEvent.category.id.in(categories));
         }
-        if (isPaid != null) {
-            query = query.and(qEvent.isPaid.eq(isPaid));
+        if (paid != null) {
+            query = query.and(qEvent.paid.eq(paid));
         }
         if (rangeStart != null) {
             query = query.and(qEvent.eventDate.after(LocalDateTime.parse(rangeStart, DATE_TIME_FORMATTER)));
@@ -388,6 +396,7 @@ public class EventServiceImpl implements EventService {
         statsClient.setServerUrl(SERVER_URL);
 
         EndpointHitDto endpointHitDto = new EndpointHitDto();
+
         endpointHitDto.setApp(request.getHeader("User-Agent"));
         endpointHitDto.setUri(request.getRequestURI());
         endpointHitDto.setIp(request.getRemoteAddr());
@@ -439,5 +448,29 @@ public class EventServiceImpl implements EventService {
             }
         }
         return requests;
+    }
+
+    @SneakyThrows
+    private void getViews(List<Event> events) {
+
+        LocalDateTime start = LocalDateTime.now().minusYears(1);
+        LocalDateTime end = LocalDateTime.now();
+
+        List<String> uris = new ArrayList<>();
+
+        for (Event event : events) {
+            uris.add("/events/" + event.getId().toString());
+        }
+
+        List<ViewStatsDto> stats = statsClient.getStats(start, end, uris, false);
+
+
+        for (Event event : events) {
+            for (ViewStatsDto stat : stats) {
+                if (stat.getUri().equals("/events/" + event.getId().toString())) {
+                    event.setViews(event.getViews() + 1);
+                }
+            }
+        }
     }
 }
