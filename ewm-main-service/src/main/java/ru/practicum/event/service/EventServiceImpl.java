@@ -458,6 +458,8 @@ public class EventServiceImpl implements EventService {
         LocalDateTime start = LocalDateTime.now().minusYears(1);
         LocalDateTime end = LocalDateTime.now();
 
+        statsClient.setServerUrl(statsServerUrl);
+
         List<String> uris = new ArrayList<>();
 
         for (Event event : events) {
