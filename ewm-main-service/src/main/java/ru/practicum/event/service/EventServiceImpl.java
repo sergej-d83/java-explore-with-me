@@ -50,10 +50,10 @@ public class EventServiceImpl implements EventService {
     private final RequestRepository requestRepository;
 
     @Value("${server.url}")
-    private String SERVER_URL;
+    private String statsServerUrl;
     private final StatsClient statsClient;
 
-    private final static DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    private final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     @Override
     public List<EventShortDto> getEvents(String text, Integer[] categories, Boolean isPaid, String rangeStart,
@@ -349,10 +349,10 @@ public class EventServiceImpl implements EventService {
             query = query.and(qEvent.paid.eq(paid));
         }
         if (rangeStart != null) {
-            query = query.and(qEvent.eventDate.after(LocalDateTime.parse(rangeStart, DATE_TIME_FORMATTER)));
+            query = query.and(qEvent.eventDate.after(LocalDateTime.parse(rangeStart, dateTimeFormatter)));
         }
         if (rangeEnd != null) {
-            query = query.and(qEvent.eventDate.before(LocalDateTime.parse(rangeEnd, DATE_TIME_FORMATTER)));
+            query = query.and(qEvent.eventDate.before(LocalDateTime.parse(rangeEnd, dateTimeFormatter)));
         }
         if (rangeStart == null) {
             query = query.and(qEvent.eventDate.after(LocalDateTime.now()));
@@ -382,10 +382,10 @@ public class EventServiceImpl implements EventService {
             query = query.and(qEvent.category.id.in(categories));
         }
         if (rangeStart != null) {
-            query = query.and(qEvent.eventDate.after(LocalDateTime.parse(rangeStart, DATE_TIME_FORMATTER)));
+            query = query.and(qEvent.eventDate.after(LocalDateTime.parse(rangeStart, dateTimeFormatter)));
         }
         if (rangeEnd != null) {
-            query = query.and(qEvent.eventDate.before(LocalDateTime.parse(rangeEnd, DATE_TIME_FORMATTER)));
+            query = query.and(qEvent.eventDate.before(LocalDateTime.parse(rangeEnd, dateTimeFormatter)));
         }
 
         return query;
@@ -393,7 +393,7 @@ public class EventServiceImpl implements EventService {
 
     private void sendStatistics(HttpServletRequest request) {
 
-        statsClient.setServerUrl(SERVER_URL);
+        statsClient.setServerUrl(statsServerUrl);
 
         EndpointHitDto endpointHitDto = new EndpointHitDto();
 
@@ -413,8 +413,8 @@ public class EventServiceImpl implements EventService {
             throw new ConflictException("Лимит участников достигнут.");
         }
 
-        List<ParticipationRequest> requests = requestRepository.
-                findByEventIdAndIdInOrderById(event.getId(), List.of(updateRequest.getRequestIds()));
+        List<ParticipationRequest> requests = requestRepository
+                .findByEventIdAndIdInOrderById(event.getId(), List.of(updateRequest.getRequestIds()));
 
         for (ParticipationRequest request : requests) {
 
