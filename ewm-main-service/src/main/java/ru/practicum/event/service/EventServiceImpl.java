@@ -220,7 +220,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public EventFullDto updateEventAsUser(Long userId, Long eventId, UpdateEventUserRequest updateRequest) {
+    public EventFullDto updateEventAsUser(Long userId, Long eventId, UpdateEventUserRequest userUpdateRequest) {
 
         userRepository.findById(userId).orElseThrow(
                 () -> new NotFoundException("Пользователь под номером " + userId + " не найден"));
@@ -237,47 +237,47 @@ public class EventServiceImpl implements EventService {
         if (event.getEventDate().isBefore(LocalDateTime.now().plusHours(2))) {
             throw new ConflictException("Событие начнётся раньше чем через 2 часа.");
         }
-        if (updateRequest.getEventDate() != null) {
-            if (updateRequest.getEventDate().isBefore(LocalDateTime.now())) {
-                throw new ConflictException("Начало события не может быть в прошлом. " + updateRequest.getEventDate());
+        if (userUpdateRequest.getEventDate() != null) {
+            if (userUpdateRequest.getEventDate().isBefore(LocalDateTime.now())) {
+                throw new ConflictException("Начало события не может быть в прошлом. " + userUpdateRequest.getEventDate());
             }
         }
 
-        if (updateRequest.getAnnotation() != null) {
-            event.setAnnotation(updateRequest.getAnnotation());
+        if (userUpdateRequest.getAnnotation() != null) {
+            event.setAnnotation(userUpdateRequest.getAnnotation());
         }
-        if (updateRequest.getCategory() != null) {
-            event.setCategory(categoryRepository.findById(updateRequest.getCategory())
+        if (userUpdateRequest.getCategory() != null) {
+            event.setCategory(categoryRepository.findById(userUpdateRequest.getCategory())
                     .orElseThrow(() -> new NotFoundException("Категория не найдена.")));
         }
-        if (updateRequest.getDescription() != null) {
-            event.setDescription(updateRequest.getDescription());
+        if (userUpdateRequest.getDescription() != null) {
+            event.setDescription(userUpdateRequest.getDescription());
         }
-        if (updateRequest.getEventDate() != null) {
-            event.setEventDate(updateRequest.getEventDate());
+        if (userUpdateRequest.getEventDate() != null) {
+            event.setEventDate(userUpdateRequest.getEventDate());
         }
-        if (updateRequest.getLocation() != null) {
-            event.setLocation(updateRequest.getLocation());
+        if (userUpdateRequest.getLocation() != null) {
+            event.setLocation(userUpdateRequest.getLocation());
         }
-        if (updateRequest.getPaid() != null) {
-            event.setPaid(updateRequest.getPaid());
+        if (userUpdateRequest.getPaid() != null) {
+            event.setPaid(userUpdateRequest.getPaid());
         }
-        if (updateRequest.getParticipantLimit() != null) {
-            event.setParticipantLimit(updateRequest.getParticipantLimit());
+        if (userUpdateRequest.getParticipantLimit() != null) {
+            event.setParticipantLimit(userUpdateRequest.getParticipantLimit());
         }
-        if (updateRequest.getRequestModeration() != null) {
-            event.setRequestModeration(updateRequest.getRequestModeration());
+        if (userUpdateRequest.getRequestModeration() != null) {
+            event.setRequestModeration(userUpdateRequest.getRequestModeration());
         }
-        if (updateRequest.getStateAction() != null) {
-            if (updateRequest.getStateAction() == UserStateAction.SEND_TO_REVIEW) {
+        if (userUpdateRequest.getStateAction() != null) {
+            if (userUpdateRequest.getStateAction() == UserStateAction.SEND_TO_REVIEW) {
                 event.setState(EventStatus.PENDING);
             }
-            if (updateRequest.getStateAction() == UserStateAction.CANCEL_REVIEW) {
+            if (userUpdateRequest.getStateAction() == UserStateAction.CANCEL_REVIEW) {
                 event.setState(EventStatus.CANCELED);
             }
         }
-        if (updateRequest.getTitle() != null) {
-            event.setTitle(updateRequest.getTitle());
+        if (userUpdateRequest.getTitle() != null) {
+            event.setTitle(userUpdateRequest.getTitle());
         }
 
         return EventMapper.toEventFullDto(eventRepository.save(event));
@@ -449,6 +449,8 @@ public class EventServiceImpl implements EventService {
         }
         return requests;
     }
+
+
 
     @SneakyThrows
     private void getViews(List<Event> events) {
