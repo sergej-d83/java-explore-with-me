@@ -1,9 +1,10 @@
-DROP TABLE IF EXISTS users CASCADE ;
-DROP TABLE IF EXISTS categories CASCADE ;
-DROP TABLE IF EXISTS events CASCADE ;
-DROP TABLE IF EXISTS requests CASCADE ;
-DROP TABLE IF EXISTS compilations CASCADE ;
-DROP TABLE IF EXISTS event_compilations CASCADE ;
+DROP TABLE IF EXISTS users CASCADE;
+DROP TABLE IF EXISTS categories CASCADE;
+DROP TABLE IF EXISTS events CASCADE;
+DROP TABLE IF EXISTS requests CASCADE;
+DROP TABLE IF EXISTS comments CASCADE;
+DROP TABLE IF EXISTS compilations CASCADE;
+DROP TABLE IF EXISTS event_compilations CASCADE;
 
 CREATE TABLE IF NOT EXISTS users
 (
@@ -44,6 +45,15 @@ CREATE TABLE IF NOT EXISTS requests
     event_id     BIGINT NOT NULL REFERENCES events (id),
     requester_id BIGINT NOT NULL REFERENCES users (id),
     status       VARCHAR(50)
+);
+
+CREATE TABLE IF NOT EXISTS comments
+(
+    id         BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    text       VARCHAR(512)                NOT NULL,
+    event_id   BIGINT                      NOT NULL REFERENCES events (id),
+    author_id  BIGINT                      NOT NULL REFERENCES users (id),
+    created_on TIMESTAMP WITHOUT TIME ZONE NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS compilations

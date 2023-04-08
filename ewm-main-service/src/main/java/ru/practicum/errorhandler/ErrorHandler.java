@@ -55,4 +55,15 @@ public class ErrorHandler {
                 LocalDateTime.now()
         );
     }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ApiError handleInternalServerErrorException(final Throwable e) {
+        return new ApiError(
+                HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(),
+                e.getLocalizedMessage(),
+                e.getMessage(),
+                LocalDateTime.now()
+        );
+    }
 }

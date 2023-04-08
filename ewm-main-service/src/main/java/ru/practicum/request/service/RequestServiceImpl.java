@@ -50,11 +50,11 @@ public class RequestServiceImpl implements RequestService {
         Event event = eventRepository.findById(eventId).orElseThrow(
                 () -> new NotFoundException("Событие под номером " + eventId + " не найдено."));
 
-        if (event.getInitiator().getId().equals(userId)) {
+        if (event.getInitiator().getId() != null && event.getInitiator().getId().equals(userId)) {
             throw new ConflictException("Нельзя делать запрос на участие в своём событии.");
         }
 
-        if (!event.getState().equals(EventStatus.PUBLISHED)) {
+        if (event.getState() != null && !event.getState().equals(EventStatus.PUBLISHED)) {
             throw new ConflictException("Событие ещё не опубликовано.");
         }
 
@@ -85,7 +85,7 @@ public class RequestServiceImpl implements RequestService {
         userRepository.findById(userId).orElseThrow(
                 () -> new NotFoundException("Пользователь под номером " + userId + " не найден"));
 
-        if (request.getRequester().equals(userId)) {
+        if (request.getRequester() != null && request.getRequester().equals(userId)) {
             request.setStatus(ParticipationRequestStatus.CANCELED);
         } else {
             throw new ConflictException("Можно отклонить только свой запрос.");

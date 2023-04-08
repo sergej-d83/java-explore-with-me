@@ -1,11 +1,14 @@
 package ru.practicum.event.dto;
 
 import ru.practicum.category.CategoryMapper;
+import ru.practicum.comments.dto.CommentMapper;
 import ru.practicum.event.Event;
 import ru.practicum.event.status.EventStatus;
 import ru.practicum.user.UserMapper;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.stream.Collectors;
 
 public class EventMapper {
 
@@ -64,6 +67,10 @@ public class EventMapper {
         fullDto.setState(event.getState());
         fullDto.setTitle(event.getTitle());
         fullDto.setViews(event.getViews());
+        fullDto.setComments(
+                event.getComments() == null ? new ArrayList<>() : event.getComments().stream()
+                                                                                     .map(CommentMapper::toCommentDto)
+                                                                                     .collect(Collectors.toList()));
 
         return fullDto;
     }

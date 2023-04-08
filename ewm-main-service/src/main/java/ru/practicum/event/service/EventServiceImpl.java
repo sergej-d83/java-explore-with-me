@@ -84,7 +84,7 @@ public class EventServiceImpl implements EventService {
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new NotFoundException("Событие под номером " + eventId + " не найдено."));
 
-        if (!event.getState().equals(EventStatus.PUBLISHED)) {
+        if (event.getState() != null && !event.getState().equals(EventStatus.PUBLISHED)) {
             throw new NotFoundException("Событие под номером " + eventId + " не найдено.");
         }
         sendStatistics(request);
@@ -228,7 +228,7 @@ public class EventServiceImpl implements EventService {
         Event event = eventRepository.findById(eventId).orElseThrow(
                 () -> new NotFoundException("Событие под номером " + eventId + " не найдено."));
 
-        if (!event.getInitiator().getId().equals(userId)) {
+        if (event.getInitiator().getId() != null && !event.getInitiator().getId().equals(userId)) {
             throw new NotFoundException("Событие под номером " + eventId + " не найдено.");
         }
         if (event.getState() == EventStatus.PUBLISHED) {
@@ -292,7 +292,7 @@ public class EventServiceImpl implements EventService {
         Event event = eventRepository.findById(eventId).orElseThrow(
                 () -> new NotFoundException("Событие под номером " + eventId + " не найдено."));
 
-        if (!userId.equals(event.getInitiator().getId())) {
+        if (event.getInitiator().getId() != null && !userId.equals(event.getInitiator().getId())) {
             throw new NotFoundException("Событие под номером " + eventId + " не найдено.");
         }
 
@@ -309,7 +309,7 @@ public class EventServiceImpl implements EventService {
         Event event = eventRepository.findById(eventId).orElseThrow(
                 () -> new NotFoundException("Событие под номером " + eventId + " не найдено."));
 
-        if (!userId.equals(event.getInitiator().getId())) {
+        if (event.getInitiator().getId() != null && !userId.equals(event.getInitiator().getId())) {
             throw new NotFoundException("Событие под номером " + eventId + " не найдено.");
         }
 
@@ -418,11 +418,11 @@ public class EventServiceImpl implements EventService {
 
         for (ParticipationRequest request : requests) {
 
-            if (!request.getStatus().equals(ParticipationRequestStatus.PENDING)) {
+            if (request.getStatus() != null && !request.getStatus().equals(ParticipationRequestStatus.PENDING)) {
                 throw new ConflictException("Запрос на участие должен быть в стадии ожидания.");
             }
 
-            if (updateRequest.getStatus().equals(ParticipationRequestStatus.CONFIRMED)) {
+            if (updateRequest.getStatus() != null && updateRequest.getStatus().equals(ParticipationRequestStatus.CONFIRMED)) {
                 if ((event.getParticipantLimit() == 0 || !event.getRequestModeration()) &&
                         (event.getConfirmedRequests().size() + countConfirmed < event.getParticipantLimit())) {
 
