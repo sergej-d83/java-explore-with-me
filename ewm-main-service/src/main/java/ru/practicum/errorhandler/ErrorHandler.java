@@ -5,6 +5,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.client.HttpServerErrorException;
 import ru.practicum.exception.ConflictException;
 import ru.practicum.exception.InvalidRequestException;
 import ru.practicum.exception.NotFoundException;
@@ -51,6 +52,17 @@ public class ErrorHandler {
         return new ApiError(
                 HttpStatus.BAD_REQUEST.getReasonPhrase(),
                 "Incorrectly made request.",
+                e.getMessage(),
+                LocalDateTime.now()
+        );
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ApiError handleInternalServerErrorException(final HttpServerErrorException.InternalServerError e) {
+        return new ApiError(
+                HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(),
+                e.getLocalizedMessage(),
                 e.getMessage(),
                 LocalDateTime.now()
         );

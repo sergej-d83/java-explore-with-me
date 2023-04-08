@@ -33,6 +33,4 @@ public class PrivateRequestController {
 
         return new ResponseEntity<>(requestService.cancelRequest(userId, requestId), HttpStatus.OK);
     }
-
-
 }
