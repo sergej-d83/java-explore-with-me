@@ -16,6 +16,8 @@ import ru.practicum.user.User;
 import ru.practicum.user.repository.UserRepository;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -47,6 +49,24 @@ public class CommentServiceImpl implements CommentService {
         comment.setCreatedOn(LocalDateTime.now());
 
         return CommentMapper.toCommentDto(commentRepository.save(comment));
+    }
+
+    @Override
+    public CommentDto getComment(Long commentId) {
+
+        Comment comment = commentRepository.findById(commentId).orElseThrow(
+                () -> new NotFoundException("Комментарий под номером " + commentId + " не найден."));
+
+        return CommentMapper.toCommentDto(comment);
+    }
+
+    @Override
+    public List<CommentDto> getComments(Long eventId) {
+
+        Event event = eventRepository.findById(eventId).orElseThrow(
+                () -> new NotFoundException("Событие под номером " + eventId + " не найдено."));
+
+        return event.getComments().stream().map(CommentMapper::toCommentDto).collect(Collectors.toList());
     }
 
     @Override
