@@ -16,6 +16,7 @@ import ru.practicum.user.User;
 import ru.practicum.user.repository.UserRepository;
 
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -37,7 +38,7 @@ public class CommentServiceImpl implements CommentService {
         Event event = eventRepository.findById(eventId).orElseThrow(
                 () -> new NotFoundException("Событие под номером " + eventId + " не найдено."));
 
-        if (event.getState() != EventStatus.PUBLISHED) {
+        if (!EventStatus.PUBLISHED.equals(event.getState())) {
             throw new ConflictException("Комментарий можно оставить только к опубликованным событиям.");
         }
 
@@ -66,7 +67,10 @@ public class CommentServiceImpl implements CommentService {
         Event event = eventRepository.findById(eventId).orElseThrow(
                 () -> new NotFoundException("Событие под номером " + eventId + " не найдено."));
 
-        return event.getComments().stream().map(CommentMapper::toCommentDto).collect(Collectors.toList());
+        return event.getComments().stream()
+                .map(CommentMapper::toCommentDto)
+                .sorted(Comparator.comparing(CommentDto::getCreatedOn))
+                .collect(Collectors.toList());
     }
 
     @Override

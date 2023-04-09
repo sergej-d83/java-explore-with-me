@@ -6,5 +6,4 @@ import ru.practicum.comments.Comment;
 
 @Repository
 public interface CommentRepository extends JpaRepository<Comment, Long> {
-
 }
