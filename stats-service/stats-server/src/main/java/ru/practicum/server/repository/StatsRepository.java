@@ -10,17 +10,24 @@ import java.util.List;
 
 public interface StatsRepository extends JpaRepository<EndpointHit, Long> {
 
-    @Query(value = "select h.app as app, h.uri as uri, count(h.ip) as hits " +
-            "from hits as h " +
-            "where uri in (:uris) and h.request_time between (:start) and (:end) " +
+    @Query("select new ru.practicum.server.dto.ViewStatsDto(h.app, h.uri, count(distinct h.ip)) " +
+            "from EndpointHit as h " +
+            "where h.uri in (:uris) and h.timestamp between (:start) and (:end) " +
             "group by h.ip, h.uri, h.app " +
-            "order by hits desc", nativeQuery = true)
+            "order by count(h.id) desc")
     List<ViewStatsDto> getStatsByUrisAndIp(LocalDateTime start, LocalDateTime end, List<String> uris);
 
-    @Query(value = "select h.app as app, h.uri as uri, count(*) as hits " +
-            "from hits as h " +
-            "where uri in (:uris) and h.request_time between (:start) and (:end) " +
+    @Query("select new ru.practicum.server.dto.ViewStatsDto(h.app, h.uri, count(h.id))" +
+            "from EndpointHit as h " +
+            "where h.uri in (:uris) and h.timestamp between (:start) and (:end) " +
             "group by h.uri, h.app " +
-            "order by hits desc", nativeQuery = true)
+            "order by count(h.id) desc")
     List<ViewStatsDto> getStatsByUris(LocalDateTime start, LocalDateTime end, List<String> uris);
+
+    @Query("select new ru.practicum.server.dto.ViewStatsDto(h.app, h.uri, count(h.id)) " +
+            "from EndpointHit as h " +
+            "where h.timestamp between (:start) and (:end) " +
+            "group by h.uri, h.app " +
+            "order by count(h.id) desc")
+    List<ViewStatsDto> getStatsByTime(LocalDateTime start, LocalDateTime end);
 }
