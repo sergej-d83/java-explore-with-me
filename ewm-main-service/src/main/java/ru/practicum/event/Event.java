@@ -78,7 +78,7 @@ public class Event {
 
         return this.requests
                 .stream()
-                .filter((request) -> request.getStatus().equals(ParticipationRequestStatus.CONFIRMED))
+                .filter((request) -> ParticipationRequestStatus.CONFIRMED.equals(request.getStatus()))
                 .collect(Collectors.toList());
     }
 }
