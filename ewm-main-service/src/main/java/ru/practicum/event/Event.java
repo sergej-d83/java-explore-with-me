@@ -3,6 +3,7 @@ package ru.practicum.event;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.Data;
 import ru.practicum.category.Category;
+import ru.practicum.comments.Comment;
 import ru.practicum.event.status.EventStatus;
 import ru.practicum.request.ParticipationRequest;
 import ru.practicum.request.status.ParticipationRequestStatus;
@@ -71,6 +72,10 @@ public class Event {
     @Transient
     private Long views = 0L;
 
+    @OneToMany(mappedBy = "event")
+    @JsonManagedReference
+    private List<Comment> comments;
+
     public List<ParticipationRequest> getConfirmedRequests() {
         if (this.requests == null) {
             return Collections.emptyList();
@@ -78,7 +83,7 @@ public class Event {
 
         return this.requests
                 .stream()
-                .filter((request) -> request.getStatus().equals(ParticipationRequestStatus.CONFIRMED))
+                .filter((request) -> ParticipationRequestStatus.CONFIRMED.equals(request.getStatus()))
                 .collect(Collectors.toList());
     }
 }

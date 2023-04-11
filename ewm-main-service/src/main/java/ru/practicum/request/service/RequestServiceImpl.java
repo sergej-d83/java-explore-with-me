@@ -54,7 +54,7 @@ public class RequestServiceImpl implements RequestService {
             throw new ConflictException("Нельзя делать запрос на участие в своём событии.");
         }
 
-        if (event.getState() != null && !event.getState().equals(EventStatus.PUBLISHED)) {
+        if (!EventStatus.PUBLISHED.equals(event.getState())) {
             throw new ConflictException("Событие ещё не опубликовано.");
         }
 

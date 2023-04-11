@@ -84,7 +84,7 @@ public class EventServiceImpl implements EventService {
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new NotFoundException("Событие под номером " + eventId + " не найдено."));
 
-        if (event.getState() != null && !event.getState().equals(EventStatus.PUBLISHED)) {
+        if (!EventStatus.PUBLISHED.equals(event.getState())) {
             throw new NotFoundException("Событие под номером " + eventId + " не найдено.");
         }
         sendStatistics(request);
@@ -317,12 +317,12 @@ public class EventServiceImpl implements EventService {
         requestRepository.saveAll(requests);
 
         List<ParticipationRequestDto> confirmedRequests = requests.stream()
-                .filter(request -> request.getStatus().equals(ParticipationRequestStatus.CONFIRMED))
+                .filter(request -> ParticipationRequestStatus.CONFIRMED.equals(request.getStatus()))
                 .map(RequestMapper::toRequestDto)
                 .collect(Collectors.toList());
 
         List<ParticipationRequestDto> rejectedRequests = requests.stream()
-                .filter(request -> request.getStatus().equals(ParticipationRequestStatus.REJECTED))
+                .filter(request -> ParticipationRequestStatus.REJECTED.equals(request.getStatus()))
                 .map(RequestMapper::toRequestDto)
                 .collect(Collectors.toList());
 
@@ -418,11 +418,11 @@ public class EventServiceImpl implements EventService {
 
         for (ParticipationRequest request : requests) {
 
-            if (request.getStatus() != null && !request.getStatus().equals(ParticipationRequestStatus.PENDING)) {
+            if (!ParticipationRequestStatus.PENDING.equals(request.getStatus())) {
                 throw new ConflictException("Запрос на участие должен быть в стадии ожидания.");
             }
 
-            if (updateRequest.getStatus() != null && updateRequest.getStatus().equals(ParticipationRequestStatus.CONFIRMED)) {
+            if (ParticipationRequestStatus.CONFIRMED.equals(updateRequest.getStatus())) {
                 if ((event.getParticipantLimit() == 0 || !event.getRequestModeration()) &&
                         (event.getConfirmedRequests().size() + countConfirmed < event.getParticipantLimit())) {
 
